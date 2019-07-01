@@ -2,8 +2,12 @@ use crate::lexer::*;
 
 type Iter<'a> = std::iter::Peekable<std::slice::Iter<'a, Token<'a>>>;
 
-pub fn parse<'a>(tokens: &'a [Token<'a>]) -> Result<Module<'a>, ParseError<'a>> {
+pub fn parse_module<'a>(tokens: &'a [Token<'a>]) -> Result<Module<'a>, ParseError<'a>> {
     Module::parse(&mut tokens.iter().peekable())
+}
+
+pub fn parse_expr<'a>(tokens: &'a [Token<'a>]) -> Result<Expression<'a>, ParseError<'a>> {
+    Expression::parse(&mut tokens.iter().peekable())
 }
 
 fn try_match<'a>(iter: &mut Iter<'a>, ty: TokenType) -> Result<&'a Token<'a>, ParseError<'a>> {

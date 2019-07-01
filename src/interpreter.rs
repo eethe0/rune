@@ -23,7 +23,7 @@ impl<'a> std::fmt::Debug for Value<'a> {
 
 pub type Scope<'a> = HashMap<String, Value<'a>>;
 
-pub fn eval<'a>(module: &Module<'a>) -> Scope<'a> {
+pub fn eval_module<'a>(module: &Module<'a>) -> Scope<'a> {
     let mut scope = Scope::new();
     for decl in &module.declarations {
         let val = eval_expression(&decl.initializer, scope.clone());
@@ -32,7 +32,7 @@ pub fn eval<'a>(module: &Module<'a>) -> Scope<'a> {
     scope
 }
 
-fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
+pub fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
     match expr {
         Expression::BinaryExpression(op, l, r) => {
             if let Value::Number(a) = eval_expression(l, scope.clone()) {
@@ -46,10 +46,10 @@ fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
                         _ => Value::Error("no".to_owned()),
                     }
                 } else {
-                    Value::Error("Operation on non-number.".to_owned())
+                    Value::Error("Operation on non-number".to_owned())
                 }
             } else {
-                Value::Error("Operation on non-number.".to_owned())
+                Value::Error("Operation on non-number".to_owned())
             }
         }
         Expression::BlockExpression => Value::Number(0),
@@ -59,7 +59,7 @@ fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
                 inner.insert(argn, argv);
                 eval_expression(&body, inner)
             } else {
-                Value::Error("Call to non-function.".to_owned())
+                Value::Error("Call to non-function".to_owned())
             }
         }
         Expression::FunctionExpression(argn, body) => {
@@ -69,7 +69,7 @@ fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
             if let Some(val) = scope.get(&(*id).to_owned()) {
                 val.clone()
             } else {
-                Value::Error(format!("{} is not defined.", id))
+                Value::Error(format!("{} is not defined", id))
             }
         }
         Expression::NumberExpression(n) => Value::Number(n.parse().unwrap()),
@@ -82,7 +82,7 @@ fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
                     _ => Value::Error("no".to_owned()),
                 }
             } else {
-                Value::Error("Operation on non-number.".to_owned())
+                Value::Error("Operation on non-number".to_owned())
             }
         }
     }

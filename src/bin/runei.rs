@@ -14,10 +14,10 @@ fn main() {
     match rune::lexer::tokenize(code) {
         Ok(tokens) => {
             //println!("{:#?}", tokens);
-            match rune::parser::parse(tokens.as_slice()) {
+            match rune::parser::parse_module(tokens.as_slice()) {
                 Ok(module) => {
                     //println!("{:#?}", module);
-                    println!("{:#?}", rune::interpreter::eval(&module));
+                    println!("{:#?}", rune::interpreter::eval_module(&module));
                 }
                 Err(err) => println!("{:#?}", err),
             }
