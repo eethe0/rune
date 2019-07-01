@@ -13,6 +13,8 @@ pub enum TokenType {
     Semicolon,
     OpenBrace,
     CloseBrace,
+    OpenParen,
+    CloseParen,
     OpPlus,
     OpMinus,
     OpMultiply,
@@ -33,6 +35,14 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
             }),
             b'}' => tokens.push(Token {
                 variant: TokenType::CloseBrace,
+                value: b[i..i + 1].to_owned(),
+            }),
+            b'(' => tokens.push(Token {
+                variant: TokenType::OpenParen,
+                value: b[i..i + 1].to_owned(),
+            }),
+            b')' => tokens.push(Token {
+                variant: TokenType::CloseParen,
                 value: b[i..i + 1].to_owned(),
             }),
             b'=' => tokens.push(Token {

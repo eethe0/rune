@@ -2,11 +2,11 @@ use crate::lexer::*;
 
 type Iter<'a> = std::iter::Peekable<std::slice::Iter<'a, Token>>;
 
-pub fn parse_module(tokens: & [Token]) -> Result<Module, ParseError> {
+pub fn parse_module(tokens: &[Token]) -> Result<Module, ParseError> {
     Module::parse(&mut tokens.iter().peekable())
 }
 
-pub fn parse_expr(tokens: & [Token]) -> Result<Expression, ParseError> {
+pub fn parse_expr(tokens: &[Token]) -> Result<Expression, ParseError> {
     Expression::parse(&mut tokens.iter().peekable())
 }
 
@@ -147,6 +147,11 @@ impl Expression {
                     op,
                     Box::new(Self::exp(iter, q)?),
                 ))
+            } else if token.variant == TokenType::OpenParen {
+                iter.next();
+                let t = Self::exp(iter, 0)?;
+                expect(iter, TokenType::CloseParen)?;
+                Ok(t)
             } else {
                 match token.variant {
                     TokenType::Identifier => {
