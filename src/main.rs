@@ -4,7 +4,7 @@ use std::io::Read;
 
 fn main() {
     let mut bytes = vec![];
-    std::fs::File::open("test.gb")
+    std::fs::File::open("test.rn")
         .expect("Could not open file.")
         .read_to_end(&mut bytes)
         .expect("Could not read file.");

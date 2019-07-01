@@ -1,7 +1,7 @@
 [package]
 authors = ["Etienne <etienneorlhac@gmail.com>"]
 edition = "2018"
-name = "gbc"
+name = "rune"
 version = "0.1.0"
 
 [dependencies]
