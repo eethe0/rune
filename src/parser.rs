@@ -1,4 +1,4 @@
-use super::lexer::*;
+use crate::lexer::*;
 
 type Iter<'a> = std::iter::Peekable<std::slice::Iter<'a, Token<'a>>>;
 
@@ -33,14 +33,16 @@ fn expect<'a>(iter: &mut Iter<'a>, ty: TokenType) -> Result<&'a Token<'a>, Parse
 }
 
 #[derive(Debug)]
-pub struct Module<'a>(Vec<Declaration<'a>>);
+pub struct Module<'a> {
+    pub declarations: Vec<Declaration<'a>>,
+    }
 
 impl<'a> Module<'a> {
     fn parse(iter: &mut Iter<'a>) -> Result<Self, ParseError<'a>> {
-        let mut module = Module(vec![]);
+        let mut module = Module {declarations: vec![]};
         loop {
             match Declaration::parse(iter) {
-                Ok(decl) => module.0.push(decl),
+                Ok(decl) => module.declarations.push(decl),
                 Err(err) => match err {
                     ParseError::NoMatch => break,
                     _ => return Err(err),
@@ -60,26 +62,20 @@ impl<'a> Module<'a> {
 
 #[derive(Debug)]
 pub struct Declaration<'a> {
-    identifier: &'a str,
-    initializer: Option<Expression<'a>>,
+    pub identifier: &'a str,
+    pub initializer: Expression<'a>,
 }
 
 impl<'a> Declaration<'a> {
     fn parse(iter: &mut Iter<'a>) -> Result<Self, ParseError<'a>> {
         try_match(iter, TokenType::LetKeyword)?;
         let id = expect(iter, TokenType::Identifier)?.value;
-        if let Ok(_) = try_match(iter, TokenType::OpAssign) {
-            let expr = Expression::parse(iter)?;
-            Ok(Declaration {
-                identifier: id,
-                initializer: Some(expr),
-            })
-        } else {
-            Ok(Declaration {
-                identifier: id,
-                initializer: None,
-            })
-        }
+        expect(iter, TokenType::OpAssign)?;
+        let expr = Expression::parse(iter)?;
+        Ok(Declaration {
+            identifier: id,
+            initializer:expr,
+        })
         //expect(iter, TokenType::Semicolon)?;
     }
 }
@@ -91,7 +87,7 @@ pub enum Statement<'a> {
     ReturnStatement(Expression<'a>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression<'a> {
     IdentifierExpression(&'a str),
     NumberExpression(&'a str),

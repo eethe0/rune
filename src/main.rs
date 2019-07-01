@@ -1,5 +1,7 @@
 mod parser;
 mod lexer;
+mod interpreter;
+
 use std::io::Read;
 
 fn main() {
@@ -13,8 +15,14 @@ fn main() {
 
     match lexer::tokenize(code) {
         Ok(tokens) => {
-            println!("{:#?}", tokens);
-            println!("{:#?}", parser::parse(tokens.as_slice()));
+            //println!("{:#?}", tokens);
+            match parser::parse(tokens.as_slice()) {
+                Ok(module) => {
+                    println!("{:#?}", module);
+                    println!("{:#?}", interpreter::eval(&module));
+                }
+                Err(err) => println!("{:#?}", err),
+            }
         }
         Err(err) => println!("{:#?}", err),
     }
