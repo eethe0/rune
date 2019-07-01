@@ -6,8 +6,24 @@ pub fn parse_module(tokens: &[Token]) -> Result<Module, ParseError> {
     Module::parse(&mut tokens.iter().peekable())
 }
 
-pub fn parse_expr(tokens: &[Token]) -> Result<Expression, ParseError> {
-    Expression::parse(&mut tokens.iter().peekable())
+pub fn parse_single_decl(tokens: &[Token]) -> Result<Declaration, ParseError> {
+    let mut iter = tokens.iter().peekable();
+    let decl = Declaration::parse(&mut iter)?;
+    if let Some(_) = iter.next() {
+        Err(ParseError::ExpectingEndOfFile)
+    } else {
+        Ok(decl)
+    }
+}
+
+pub fn parse_single_expr(tokens: &[Token]) -> Result<Expression, ParseError> {
+    let mut iter = tokens.iter().peekable();
+    let expr = Expression::parse(&mut iter)?;
+    if let Some(_) = iter.next() {
+        Err(ParseError::ExpectingEndOfFile)
+    } else {
+        Ok(expr)
+    }
 }
 
 fn try_match(iter: &mut Iter, ty: TokenType) -> Result<Token, ParseError> {
@@ -253,6 +269,7 @@ pub enum ParseError {
     UnexpectedToken(Token, TokenType),
     UnexpectedTokenMultiple(Token, Vec<TokenType>),
     ExpectingOther(Token, String),
+    ExpectingEndOfFile,
     UnexpectedEndOfFile,
     NoMatch,
 }

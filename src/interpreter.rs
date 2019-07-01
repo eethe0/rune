@@ -26,10 +26,17 @@ pub type Scope = HashMap<String, Value>;
 pub fn eval_module(module: &Module) -> Scope {
     let mut scope = Scope::new();
     for decl in &module.declarations {
-        let val = eval_expression(&decl.initializer, scope.clone());
-        scope.entry(decl.identifier.to_owned()).or_insert(val);
+        eval_declaration(decl, &mut scope);
     }
     scope
+}
+
+pub fn eval_declaration(decl: &Declaration, scope: &mut Scope) -> Value {
+    let val = eval_expression(&decl.initializer, scope.clone());
+    scope
+        .entry(decl.identifier.to_owned())
+        .or_insert(val.clone());
+    val
 }
 
 pub fn eval_expression(expr: &Expression, scope: Scope) -> Value {
