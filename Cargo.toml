@@ -4,8 +4,4 @@ edition = "2018"
 name = "rune"
 version = "0.1.0"
 
-[lib]
-name = "rune"
-path = "src/lib.rs"
-
 [dependencies]
