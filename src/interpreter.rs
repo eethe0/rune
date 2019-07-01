@@ -26,17 +26,17 @@ pub type Scope<'a> = HashMap<String, Value<'a>>;
 pub fn eval<'a>(module: &Module<'a>) -> Scope<'a> {
     let mut scope = Scope::new();
     for decl in &module.declarations {
-        let val = evalExpression(&decl.initializer, scope.clone());
+        let val = eval_expression(&decl.initializer, scope.clone());
         scope.entry(decl.identifier.to_owned()).or_insert(val);
     }
     scope
 }
 
-fn evalExpression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
+fn eval_expression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
     match expr {
         Expression::BinaryExpression(op, l, r) => {
-            if let Value::Number(a) = evalExpression(l, scope.clone()) {
-                if let Value::Number(b) = evalExpression(r, scope.clone()) {
+            if let Value::Number(a) = eval_expression(l, scope.clone()) {
+                if let Value::Number(b) = eval_expression(r, scope.clone()) {
                     match op {
                         Operator::Add => Value::Number(a + b),
                         Operator::Subtract => Value::Number(a - b),
@@ -54,10 +54,10 @@ fn evalExpression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
         }
         Expression::BlockExpression => Value::Number(0),
         Expression::CallExpression(func, arg) => {
-            if let Value::Function(body, argn, mut inner) = evalExpression(func, scope.clone()) {
-                let argv = evalExpression(arg, scope.clone());
+            if let Value::Function(body, argn, mut inner) = eval_expression(func, scope.clone()) {
+                let argv = eval_expression(arg, scope.clone());
                 inner.insert(argn, argv);
-                evalExpression(&body, inner)
+                eval_expression(&body, inner)
             } else {
                 Value::Error("Call to non-function.".to_owned())
             }
@@ -75,7 +75,7 @@ fn evalExpression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
         Expression::NumberExpression(n) => Value::Number(n.parse().unwrap()),
         Expression::StringExpression(s) => Value::String((*s).to_owned()),
         Expression::UnaryExpression(op, v) => {
-            if let Value::Number(n) = evalExpression(v, scope.clone()) {
+            if let Value::Number(n) = eval_expression(v, scope.clone()) {
                 match op {
                     Operator::UnaryMinus => Value::Number(-n),
                     Operator::UnaryPlus => Value::Number(n),
@@ -85,6 +85,5 @@ fn evalExpression<'a>(expr: &Expression<'a>, scope: Scope<'a>) -> Value<'a> {
                 Value::Error("Operation on non-number.".to_owned())
             }
         }
-        _ => Value::Number(0),
     }
 }

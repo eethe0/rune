@@ -8,8 +8,4 @@ version = "0.1.0"
 name = "rune"
 path = "src/lib.rs"
 
-[[bin]]
-name = "rune"
-path = "src/bin.rs"
-
 [dependencies]
