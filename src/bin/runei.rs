@@ -1,6 +1,6 @@
-mod parser;
-mod lexer;
-mod interpreter;
+extern crate rune;
+
+use rune::*;
 
 use std::io::Read;
 
@@ -18,7 +18,7 @@ fn main() {
             //println!("{:#?}", tokens);
             match parser::parse(tokens.as_slice()) {
                 Ok(module) => {
-                    println!("{:#?}", module);
+                    //println!("{:#?}", module);
                     println!("{:#?}", interpreter::eval(&module));
                 }
                 Err(err) => println!("{:#?}", err),
