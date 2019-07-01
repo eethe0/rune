@@ -17,23 +17,15 @@ fn main() {
         let code = buf.as_ref();
 
         match rune::lexer::tokenize(code) {
-            Ok(tokens) => {
-                //println!("{:#?}", tokens);
-                match rune::parser::parse_expr(tokens.as_slice()) {
-                    Ok(expr) => {
-                        //println!("{:#?}", module);
-                        println!(
-                            "{:#?}",
-                            rune::interpreter::eval_expression(
-                                &expr,
-                                rune::interpreter::Scope::new()
-                            )
-                        );
-                    }
-                    Err(err) => println!("{:#?}", err),
+            Ok(tokens) => match rune::parser::parse_expr(tokens.as_slice()) {
+                Ok(expr) => {
+                    println!(
+                        "{:#?}",
+                        rune::interpreter::eval_expression(&expr, rune::interpreter::Scope::new())
+                    );
                 }
-
-            }
+                Err(err) => println!("{:#?}", err),
+            },
             Err(err) => println!("{:#?}", err),
         }
     }

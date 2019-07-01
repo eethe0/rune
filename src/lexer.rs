@@ -1,10 +1,10 @@
-#[derive(Debug)]
-pub struct Token<'a> {
+#[derive(Debug, Clone)]
+pub struct Token {
     pub variant: TokenType,
-    pub value: &'a str,
+    pub value: String,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     LetKeyword,
     Identifier,
@@ -29,31 +29,31 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
         match c {
             b'{' => tokens.push(Token {
                 variant: TokenType::OpenBrace,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b'}' => tokens.push(Token {
                 variant: TokenType::CloseBrace,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b'=' => tokens.push(Token {
                 variant: TokenType::OpAssign,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b'+' => tokens.push(Token {
                 variant: TokenType::OpPlus,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b'-' => {
                 let mut token = Token {
                     variant: TokenType::OpMinus,
-                    value: &b[i..i + 1],
+                    value: b[i..i + 1].to_owned(),
                 };
                 if let Some(&(i, c)) = iter.peek() {
                     if c == b'>' {
                         iter.next();
                         token = Token {
                             variant: TokenType::OpFunction,
-                            value: &b[i - 1..i + 1],
+                            value: b[i - 1..i + 1].to_owned(),
                         };
                     }
                 }
@@ -61,19 +61,19 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
             }
             b'*' => tokens.push(Token {
                 variant: TokenType::OpMultiply,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b'/' => tokens.push(Token {
                 variant: TokenType::OpDivide,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b'%' => tokens.push(Token {
                 variant: TokenType::OpModulo,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             b';' => tokens.push(Token {
                 variant: TokenType::Semicolon,
-                value: &b[i..i + 1],
+                value: b[i..i + 1].to_owned(),
             }),
             _ if c.is_ascii_alphabetic() || c == b'_' => {
                 let start = i;
@@ -95,7 +95,7 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
                 };
                 tokens.push(Token {
                     variant: variant,
-                    value: value,
+                    value: value.to_owned(),
                 });
             }
             _ if c.is_ascii_digit() => {
@@ -111,7 +111,7 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
                 }
                 tokens.push(Token {
                     variant: TokenType::NumberLiteral,
-                    value: &b[start..end],
+                    value: b[start..end].to_owned(),
                 });
             }
             b'"' => {
@@ -120,14 +120,14 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
                     if c == b'"' {
                         tokens.push(Token {
                             variant: TokenType::StringLiteral,
-                            value: &b[start..i + 1],
+                            value: b[start..i + 1].to_owned(),
                         });
                         break;
                     }
                 }
             }
             _ if c.is_ascii_whitespace() => {}
-            _ => return Err(TokenizeError::UnexpectedCharacter(&b[i..i + 1])),
+            _ => return Err(TokenizeError::UnexpectedCharacter(c as char)),
         }
     }
     Ok(tokens)
@@ -135,18 +135,18 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
 
 
 #[derive(Debug)]
-pub enum TokenizeError<'a> {
-    UnexpectedCharacter(&'a str),
+pub enum TokenizeError {
+    UnexpectedCharacter(char),
 }
 
 
-impl<'a> std::fmt::Display for TokenizeError<'a> {
+impl std::fmt::Display for TokenizeError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-impl<'a> std::error::Error for TokenizeError<'a> {
+impl std::error::Error for TokenizeError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
