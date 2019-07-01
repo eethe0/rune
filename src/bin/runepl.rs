@@ -2,31 +2,22 @@ extern crate rune;
 
 use std::io::Write;
 
-fn main() {
+fn main() -> Result<(), Box<std::error::Error>> {
     loop {
-        let mut buf = String::new();
-        print!("> ");
-        std::io::stdout()
-            .flush()
-            .ok()
-            .expect("Couldn't flush stdout");
-        std::io::stdin()
-            .read_line(&mut buf)
-            .expect("Couldn't read from stdin");
-
-        let code = buf.as_ref();
-
-        match rune::lexer::tokenize(code) {
-            Ok(tokens) => match rune::parser::parse_expr(tokens.as_slice()) {
-                Ok(expr) => {
-                    println!(
-                        "{:#?}",
-                        rune::interpreter::eval_expression(&expr, rune::interpreter::Scope::new())
-                    );
-                }
-                Err(err) => println!("{:#?}", err),
-            },
-            Err(err) => println!("{:#?}", err),
-        }
+        println!("{:?}", repl()?);
     }
+}
+
+fn repl() -> Result<rune::interpreter::Value, Box<std::error::Error>> {
+    let mut buf = String::new();
+    print!("> ");
+    std::io::stdout().flush()?;
+    std::io::stdin().read_line(&mut buf)?;
+
+    let code = buf.as_ref();
+    let tokens = rune::lexer::tokenize(code)?;
+    let expr = rune::parser::parse_expr(tokens.as_slice())?;
+    let value = rune::interpreter::eval_expression(&expr, rune::interpreter::Scope::new());
+
+    Ok(value)
 }
