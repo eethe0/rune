@@ -1,4 +1,4 @@
-use super::tokenizer::*;
+use super::lexer::*;
 
 type Iter<'a> = std::iter::Peekable<std::slice::Iter<'a, Token<'a>>>;
 
@@ -66,8 +66,8 @@ pub struct Declaration<'a> {
 
 impl<'a> Declaration<'a> {
     fn parse(iter: &mut Iter<'a>) -> Result<Self, ParseError<'a>> {
-        //try_match(iter, TokenType::LetKeyword)?;
-        let id = try_match(iter, TokenType::Identifier)?.value;
+        try_match(iter, TokenType::LetKeyword)?;
+        let id = expect(iter, TokenType::Identifier)?.value;
         if let Ok(_) = try_match(iter, TokenType::OpAssign) {
             let expr = Expression::parse(iter)?;
             Ok(Declaration {
@@ -97,7 +97,7 @@ pub enum Expression<'a> {
     NumberExpression(&'a str),
     StringExpression(&'a str),
     FunctionExpression(&'a str, Box<Expression<'a>>),
-    CallExpression,
+    CallExpression(Box<Expression<'a>>, Box<Expression<'a>>),
     BinaryExpression(Operator, Box<Expression<'a>>, Box<Expression<'a>>),
     UnaryExpression(Operator, Box<Expression<'a>>),
     BlockExpression,
@@ -125,7 +125,12 @@ impl<'a> Expression<'a> {
                     break;
                 }
             } else {
-                break;
+                if let Ok(t1) = Self::p(iter) {
+                    iter.next();
+                    t = Expression::CallExpression(Box::new(t), Box::new(t1));
+                } else {
+                    break;
+                }
             }
         }
         Ok(t)
@@ -243,5 +248,16 @@ pub enum ParseError<'a> {
     ExpectingOther(&'a Token<'a>, &'a str),
     UnexpectedEndOfFile,
     NoMatch,
-    AssignmentLefthandMustBeId,
+}
+
+impl<'a> std::fmt::Display for ParseError<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl<'a> std::error::Error for ParseError<'a> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
 }

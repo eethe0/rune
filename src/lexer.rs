@@ -22,12 +22,6 @@ pub enum TokenType {
     OpFunction,
 }
 
-
-#[derive(Debug)]
-pub enum TokenizeError<'a> {
-    UnexpectedCharacter(&'a str),
-}
-
 pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
     let mut iter = b.bytes().enumerate().peekable();
     let mut tokens = vec![];
@@ -137,4 +131,23 @@ pub fn tokenize(b: &str) -> Result<Vec<Token>, TokenizeError> {
         }
     }
     Ok(tokens)
+}
+
+
+#[derive(Debug)]
+pub enum TokenizeError<'a> {
+    UnexpectedCharacter(&'a str),
+}
+
+
+impl<'a> std::fmt::Display for TokenizeError<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl<'a> std::error::Error for TokenizeError<'a> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
 }
