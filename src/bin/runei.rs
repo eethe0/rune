@@ -1,7 +1,5 @@
 extern crate rune;
 
-use rune::*;
-
 use std::io::Read;
 
 fn main() {
@@ -13,13 +11,13 @@ fn main() {
 
     let code = std::str::from_utf8(bytes.as_slice()).unwrap();
 
-    match lexer::tokenize(code) {
+    match rune::lexer::tokenize(code) {
         Ok(tokens) => {
             //println!("{:#?}", tokens);
-            match parser::parse(tokens.as_slice()) {
+            match rune::parser::parse(tokens.as_slice()) {
                 Ok(module) => {
                     //println!("{:#?}", module);
-                    println!("{:#?}", interpreter::eval(&module));
+                    println!("{:#?}", rune::interpreter::eval(&module));
                 }
                 Err(err) => println!("{:#?}", err),
             }

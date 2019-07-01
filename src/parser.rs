@@ -35,11 +35,13 @@ fn expect<'a>(iter: &mut Iter<'a>, ty: TokenType) -> Result<&'a Token<'a>, Parse
 #[derive(Debug)]
 pub struct Module<'a> {
     pub declarations: Vec<Declaration<'a>>,
-    }
+}
 
 impl<'a> Module<'a> {
     fn parse(iter: &mut Iter<'a>) -> Result<Self, ParseError<'a>> {
-        let mut module = Module {declarations: vec![]};
+        let mut module = Module {
+            declarations: vec![],
+        };
         loop {
             match Declaration::parse(iter) {
                 Ok(decl) => module.declarations.push(decl),
@@ -74,7 +76,7 @@ impl<'a> Declaration<'a> {
         let expr = Expression::parse(iter)?;
         Ok(Declaration {
             identifier: id,
-            initializer:expr,
+            initializer: expr,
         })
         //expect(iter, TokenType::Semicolon)?;
     }
@@ -121,7 +123,8 @@ impl<'a> Expression<'a> {
                     break;
                 }
             } else {
-                if let Ok(t1) = Self::p(iter) {
+                // Left associative but highest precedence
+                if let Ok(t1) = Self::exp(iter, 255) {
                     t = Expression::CallExpression(Box::new(t), Box::new(t1));
                 } else {
                     break;
