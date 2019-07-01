@@ -126,7 +126,6 @@ impl<'a> Expression<'a> {
                 }
             } else {
                 if let Ok(t1) = Self::p(iter) {
-                    iter.next();
                     t = Expression::CallExpression(Box::new(t), Box::new(t1));
                 } else {
                     break;

@@ -1,3 +1,2 @@
 let product = a -> b -> a * b
-let x = product 2 5
-x
+let x = product 2 5 x
