@@ -5,10 +5,13 @@ use rune::lexer::*;
 use rune::parser::*;
 use std::io::Write;
 
-fn main() -> Result<(), Box<std::error::Error>> {
+fn main() {
     let mut scope = Scope::new();
     loop {
-        println!("{:?}", repl(&mut scope)?);
+        match repl(&mut scope) {
+            Ok(val) => println!("{:?}", val),
+            Err(err) => println!("{:?}", err),
+        }
     }
 }
 
