@@ -1,3 +1,3 @@
 let product = a -> b -> a * b
-let times_two = product 2
-let x = times_two times_two 5 + 10
+let two_times = product 2
+let x = two_times two_times 5 + 10
